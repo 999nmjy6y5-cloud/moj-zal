@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#090d12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Мой зал</title>
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+*{box-sizing:border-box}body{margin:0;background:#090d12;color:#f4f7fb;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input{font:inherit}.app{max-width:700px;margin:auto;padding:10px 14px calc(90px + env(safe-area-inset-bottom))}
+header{padding:12px 2px 10px}h1{font-size:30px;margin:0}.sub{color:#8e9aaa;font-size:13px;margin-top:3px}
+.nav{position:sticky;top:0;z-index:20;background:#090d12ee;backdrop-filter:blur(14px);display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:8px 0}.nav button,.bottom button{border:0;border-radius:12px;padding:10px 4px;background:#18212c;color:#aeb9c7;font-weight:800}.nav button.active{background:#fff;color:#111}
+.page{display:none}.page.active{display:block}.card{background:#121923;border:1px solid #263140;border-radius:18px;padding:15px;margin:12px 0}.hero{display:flex;justify-content:space-between;align-items:center}.hero h2{margin:0;font-size:21px}.muted{color:#8f9aaa;font-size:13px}.pct{font-size:22px;font-weight:900}.progress{height:8px;background:#252e3a;border-radius:99px;margin-top:12px;overflow:hidden}.bar{height:100%;width:0;background:#69e6ad}
+.ex{padding:15px 0;border-top:1px solid #26313e}.ex:first-child{border-top:0}.exname{font-weight:850;font-size:16px}.scheme{font-size:13px;color:#8f9aaa;margin-top:3px}.sets{margin-top:11px;display:grid;gap:7px}.set{display:grid;grid-template-columns:34px 1fr 1fr 45px;gap:6px;align-items:center}.set b{font-size:13px;color:#9aa6b6;text-align:center}.set input{min-width:0;background:#0c1118;border:1px solid #344152;border-radius:9px;color:#fff;padding:8px}.set button{border:0;border-radius:9px;background:#253142;color:#fff;height:38px;font-weight:900}.set button.done{background:#2e7d50}.row{display:flex;gap:7px;margin-top:10px}.smallbtn{flex:1;border:0;border-radius:10px;background:#202b39;color:#fff;padding:9px;font-weight:750}.remove{background:#2a2025}
+.actions{display:flex;gap:8px}.action{flex:1;border:0;border-radius:12px;padding:12px;background:#202b39;color:#fff;font-weight:850}.danger{background:#2a2025}
+.tip{font-size:13px;color:#aeb8c5;line-height:1.45}.statgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.stat{background:#18212c;border-radius:13px;padding:14px}.stat b{font-size:24px;display:block}.stat span{font-size:12px;color:#8f9aaa}.history{padding:11px 0;border-bottom:1px solid #26313e}.history:last-child{border:0}.bottom{position:fixed;bottom:0;left:0;right:0;z-index:30;background:#0b1017ee;backdrop-filter:blur(15px);padding:9px max(14px,calc((100vw - 700px)/2 + 14px)) calc(9px + env(safe-area-inset-bottom));display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}.bottom button.active{background:#fff;color:#111}.timer{position:fixed;left:14px;right:14px;bottom:85px;z-index:40;background:#18222e;border:1px solid #3a4859;border-radius:17px;padding:14px;display:none;box-shadow:0 10px 40px #000a}.timer b{font-size:25px}.timer button{float:right;border:0;border-radius:9px;padding:8px 12px}.install{display:none}
+</style>
+</head>
+<body>
+<div class="app">
+<header><h1>🏋️ Мой зал</h1><div class="sub">Тренировки · веса · история прогресса</div></header>
+<nav class="nav">
+<button onclick="chooseDay(0)">ПН</button><button onclick="chooseDay(1)">СР</button><button onclick="chooseDay(2)">ПТ</button><button onclick="chooseDay(3)">СБ</button><button onclick="chooseDay(3)">ВС</button>
+</nav>
+
+<section id="workout" class="page active"></section>
+<section id="stats" class="page"></section>
+<section id="history" class="page"></section>
+
+<div class="bottom"><button id="b0" class="active" onclick="page('workout')">🏋️ Зал</button><button id="b1" onclick="page('stats')">📊 Прогресс</button><button id="b2" onclick="page('history')">📅 История</button></div>
+</div>
+<div class="timer" id="timer"><button onclick="stopTimer()">Закрыть</button><b id="timerText">01:30</b><div class="muted">Отдых</div></div>
+
+<script>
+const plans=[
+{title:"Грудь + плечи",day:"Понедельник",items:[
+["Жим штанги лёжа",4,8,10],["Жим гантелей на наклонной",3,10,12],["Разведения гантелей лёжа",3,12,15],["Жим гантелей сидя",3,8,10],["Разведения гантелей в стороны",3,12,15],["Задняя дельта в тренажёре",3,12,15]]},
+{title:"Бицепс + трицепс + предплечье",day:"Среда",items:[
+["Подъём EZ-штанги на бицепс",4,8,10],["Сгибание рук с гантелями",3,10,12],["Молотки",3,10,12],["Разгибание рук на блоке",4,10,12],["Французский жим",3,10,12],["Разгибание из-за головы",3,10,12],["Сгибание кистей",3,15,20],["Разгибание кистей",3,15,20]]},
+{title:"Спина",day:"Пятница",items:[
+["Тяга верхнего блока",4,8,12],["Тяга горизонтального блока",3,10,12],["Тяга штанги в наклоне",3,8,10],["Тяга гантели одной рукой",3,10,12],["Пуловер на блоке",3,12,15],["Гиперэкстензия",3,12,15]]},
+{title:"Ноги + пресс",day:"Суббота / Воскресенье",items:[
+["Приседания / тренажёр",4,8,10],["Жим ногами",3,10,12],["Сгибание ног",3,10,12],["Разгибание ног",3,12,15],["Подъёмы на носки",4,12,15],["Скручивания",3,15,20],["Подъёмы ног",3,10,15],["Планка",3,30,60]]}
+];
+let day=0, currentPage="workout", timerInterval=null;
+const store=()=>JSON.parse(localStorage.getItem("mygym_full")||"{}");
+const save=x=>localStorage.setItem("mygym_full",JSON.stringify(x));
+const todayKey=()=>new Date().toISOString().slice(0,10);
+function getDay(){let s=store();return s[todayKey()]?.[day]||{}}
+function putDay(d){let s=store();s[todayKey()]??={};s[todayKey()][day]=d;save(s)}
+function chooseDay(i){day=Math.min(i,3);page("workout");render()}
+function page(p){currentPage=p;document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));document.getElementById(p).classList.add("active");["workout","stats","history"].forEach((x,i)=>document.getElementById("b"+i).classList.toggle("active",x===p));render()}
+function render(){
+document.querySelectorAll(".nav button").forEach((b,i)=>b.classList.toggle("active",i===day || (day===3&&i===4)));
+if(currentPage==="workout") renderWorkout(); else if(currentPage==="stats") renderStats(); else renderHistory();
+}
+function renderWorkout(){
+let p=plans[day],d=getDay(),completed=0,total=0;
+let ex=p.items.map((x,i)=>{let e=d[i]||{sets:[]};let sets=[];for(let j=0;j<x[1];j++){let z=e.sets?.[j]||{};sets.push(z);if(z.done)completed++}total+=x[1];return {x,i,e,sets}}); 
+document.getElementById("workout").innerHTML=`<div class="card"><div class="hero"><div><h2>${p.title}</h2><div class="muted">${p.day} · ${completed}/${total} подходов</div></div><div class="pct">${Math.round(completed/total*100)}%</div></div><div class="progress"><div class="bar" style="width:${completed/total*100}%"></div></div></div>
+<div class="card">${ex.map(({x,i,e,sets})=>`<div class="ex"><div class="exname">${i+1}. ${x[0]}</div><div class="scheme">${x[1]} подхода · ${x[2]}–${x[3]} повторов · отдых 60–120 сек</div><div class="sets">${sets.map((z,j)=>`<div class="set"><b>${j+1}</b><input inputmode="decimal" placeholder="кг" value="${z.weight||""}" onchange="setVal(${i},${j},'weight',this.value)"><input inputmode="numeric" placeholder="повт." value="${z.reps||""}" onchange="setVal(${i},${j},'reps',this.value)"><button class="${z.done?'done':''}" onclick="setDone(${i},${j})">${z.done?'✓':'○'}</button></div>`).join("")}</div><div class="row"><button class="smallbtn" onclick="startTimer(90)">⏱ 90 сек</button><button class="smallbtn" onclick="addSet(${i})">＋ подход</button></div></div>`).join("")}</div>
+<div class="card"><div class="tip">💡 Записывай фактический вес и повторы. Ориентир — оставить 1–2 повтора в запасе. Если верхняя граница повторов выполнена во всех подходах с хорошей техникой, увеличь вес на следующей тренировке.</div></div>
+<div class="actions"><button class="action" onclick="finishWorkout()">✅ Завершить тренировку</button><button class="action danger" onclick="resetToday()">Сбросить</button></div>`;
+}
+function setVal(i,j,k,v){let d=getDay();d[i]??={sets:[]};d[i].sets??=[];d[i].sets[j]??={};d[i].sets[j][k]=v;putDay(d);renderWorkout()}
+function setDone(i,j){let d=getDay();d[i]??={sets:[]};d[i].sets??=[];d[i].sets[j]??={};d[i].sets[j].done=!d[i].sets[j].done;putDay(d);renderWorkout()}
+function addSet(i){let d=getDay(),p=plans[day].items[i];d[i]??={sets:[]};d[i].sets??=[];d[i].sets.push({});putDay(d);renderWorkout()}
+function finishWorkout(){let s=store();s[todayKey()]??={};s[todayKey()].finished??=[];if(!s[todayKey()].finished.includes(day))s[todayKey()].finished.push(day);save(s);alert("Тренировка сохранена в историю 💪");render()}
+function resetToday(){if(confirm("Сбросить сегодняшние веса и подходы?")){let s=store();if(s[todayKey()])delete s[todayKey()][day];save(s);render()}}
+function renderStats(){
+let s=store(),weights={},sessions=0,totalSets=0;
+Object.values(s).forEach(ds=>Object.values(ds).forEach(v=>{if(v?.finished?.length)sessions+=v.finished.length}));
+Object.entries(s).forEach(([date,ds])=>{Object.entries(ds).forEach(([di,d])=>{if(!Number.isNaN(+di)&&typeof d==="object")Object.values(d).forEach(ex=>ex?.sets?.forEach(z=>{if(z?.done)totalSets++;if(z?.weight)weights[date]=(weights[date]||0)+(+z.weight||0)}))})});
+let last=Object.keys(s).sort().slice(-7).reverse();
+document.getElementById("stats").innerHTML=`<div class="card"><h2 style="margin-top:0">📊 Прогресс</h2><div class="statgrid"><div class="stat"><b>${sessions}</b><span>тренировок</span></div><div class="stat"><b>${totalSets}</b><span>подходов выполнено</span></div></div></div><div class="card"><h3 style="margin-top:0">Последние дни</h3>${last.length?last.map(d=>`<div class="history"><b>${d}</b><div class="muted">Записей за день: ${Object.keys(s[d]||{}).length}</div></div>`).join(""):"Пока нет сохранённых тренировок."}</div>`;
+}
+function renderHistory(){
+let s=store(),dates=Object.keys(s).sort().reverse();
+document.getElementById("history").innerHTML=`<div class="card"><h2 style="margin-top:0">📅 История</h2>${dates.length?dates.map(date=>{let ds=s[date]||{},names=[];Object.keys(ds).forEach(k=>{if(+k>=0&&+k<4)names.push(plans[k].title)});return `<div class="history"><b>${date}</b><div class="muted">${names.join(" · ")||"Данные"}</div></div>`}).join(""):"История появится после первой тренировки."}</div>`;
+}
+function startTimer(sec){clearInterval(timerInterval);let end=Date.now()+sec*1000;document.getElementById("timer").style.display="block";function tick(){let n=Math.max(0,Math.ceil((end-Date.now())/1000));document.getElementById("timerText").textContent=String(Math.floor(n/60)).padStart(2,"0")+":"+String(n%60).padStart(2,"0");if(!n){clearInterval(timerInterval);navigator.vibrate?.(300)}}tick();timerInterval=setInterval(tick,250)}
+function stopTimer(){clearInterval(timerInterval);document.getElementById("timer").style.display="none"}
+render();
+if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+</script>
+</body></html>

@@ -1,0 +1,10 @@
+{
+  "name": "Мой зал",
+  "short_name": "Мой зал",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#090d12",
+  "theme_color": "#090d12",
+  "lang": "ru",
+  "icons": []
+}
